@@ -36,6 +36,8 @@ public:
 
 	void start_new_round();
 
+	bool game_finsished(bool);
+
 	void collision(SDL_Surface*);
 
 	void update(int,bool,bool);

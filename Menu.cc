@@ -4,52 +4,25 @@
 #include "Position_class.h"
 #include <string>
 
-Menu::Menu(bool start_menu_param, bool team_play_param)
+Menu::Menu(int window_height)
 {
-	team_play = team_play_param;
-	start_menu = start_menu_param;
+	team_play = false;
+	start_menu = true;
 	position = 1;
 	if(start_menu == true)
 	{
-		first_position = Position_class(500, 300);
+		first_position = Position_class(window_height + 28, 112);
 		marker_position = first_position;
-		spacing = 150;
+		spacing = 56;
 		//background_image = SDL_LoadBMP( "Meny.bmp".c_str() );//Här ska någon gamefunktion verka
-	}
-	else
-	{
-		first_position = Position_class(500, 200);
-		marker_position = first_position;
-		spacing = 100;
-		if(team_play == true)
-		{
-			//background_image = SDL_LoadBMP( "Meny_lag.bmp".c_str() );
-		}
-		else
-		{
-			//background_image = SDL_LoadBMP( "Meny_alla_mot_alla.bmp".c_str() );
-		}
 	}
 }
 
 int Menu::execute_start_menu()
 {
+	start_menu = false;
 	return position;
 }
-
-/* Detta ska ligga i Game och det ska behandla när Game får en int härifrån.
-switch(position)
-{
-case 1:
-	team_play = false;
-	break;
-case 2:
-	team_play = true;
-	break;
-case 3:
-	Game.quit();
-	break;
-*/
 
 Uint32 Menu::execute_select_worm_menu()
 {

@@ -74,11 +74,49 @@ void Playground::sort_vectors()
 	}
 }
 
+bool Playground::game_finsished(bool teamplay)
+{
+	if(teamplay)
+	{
+		int teamhot = -1;
+			int teamcold = -1;
+			int counter = 0;
+			while(teamhot == -1 || teamcold == -1)
+			{
+				if(worm_vector[counter]->team == "hot")
+				{
+					teamhot = worm_vector[counter]->get_score();
+				}
+				else if(worm_vector[counter]->team == "cold")
+				{
+					teamcold = worm_vector[counter]->get_score();
+				}
+				counter++;
+			}
+			if((teamhot >= 10 && teamhot > teamcold + 2) ||
+					(teamcold >= 10 && teamcold > teamhot + 2))
+			{
+				return true;
+			}
+			else
+			{
+				return false;
+			}
+	}
+	else
+	{
+		int worm_vector_size = worm_vector.size();
+			return ((worm_vector[0]->get_score() - worm_vector[1]->get_score()) > 1) &&
+					(worm_vector[0]->get_score() > 10*worm_vector_size);
+	}
+}
+
 void Playground::collision(SDL_Surface* display)
 {
 	int survivor_vector_size = survivor_vector.size();
 	for(int worm_index = 0; worm_index < survivor_vector_size; worm_index++)
 	{
+
 		if(survivor_vector[worm_index]->get_distance_to_hole() > 0)
 		{
 			double center_x = survivor_vector[worm_index]->get_position()->x_koord;
@@ -95,12 +133,25 @@ void Playground::collision(SDL_Surface* display)
 			{
 				survivor_vector[worm_index]->kill_worm();
 				survivor_vector.erase(survivor_vector.begin() + worm_index);
-				for(int index = 0; index < survivor_vector_size; index++)
+				for(int index = 0; index < survivor_vector_size-1; index++)
 				{
 					survivor_vector[index]->add_score();
 				}
 				sort_vectors();
 			}
+		}
+		else if(survivor_vector[worm_index]->get_position()->x_koord < 5 ||
+				survivor_vector[worm_index]->get_position()->y_koord < 5 ||
+				survivor_vector[worm_index]->get_position()->x_koord > bottom_right_corner->x_koord - 5 ||
+				survivor_vector[worm_index]->get_position()->y_koord > bottom_right_corner->y_koord - 5)
+		{
+			survivor_vector[worm_index]->kill_worm();
+			survivor_vector.erase(survivor_vector.begin() + worm_index);
+			for(int index = 0; index < survivor_vector_size-1; index++)
+			{
+				survivor_vector[index]->add_score();
+			}
+			sort_vectors();
 		}
 	}
 }

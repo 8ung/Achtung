@@ -8,12 +8,9 @@ class Menu
 {
 
 private:
-	Position_class marker_position;
 	Position_class first_position;
 	bool team_play;
-	bool start_menu;
 	int spacing;
-	int position;
 	//SDL_Surface* background_image = 0;
 	enum
 	{
@@ -26,7 +23,13 @@ private:
 	};
 
 public:
-	Menu(bool, bool);
+
+	int position;
+	Position_class marker_position;
+
+	bool start_menu;
+
+	Menu(int);
 
 	int execute_start_menu();
 
