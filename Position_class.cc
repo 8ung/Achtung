@@ -11,6 +11,11 @@ Position_class::Position_class(const int x, const int y)
 	y_koord = y;
 }
 
+Position_class::~Position_class()
+{
+
+}
+
 void Position_class::random_position(int window_height)
 {
 	//srand(time(NULL));
@@ -18,3 +23,4 @@ void Position_class::random_position(int window_height)
 	//srand(time(NULL));
 	y_koord = rand() % (window_height - 2 * boundary_diff) + boundary_diff;
 }
+

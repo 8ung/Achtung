@@ -6,6 +6,8 @@
 #include <math.h>
 #include <sstream>
 #include "SDL_keyboard.h"
+#include "SDL_image.h"
+
 
 using namespace std;
 
@@ -62,12 +64,10 @@ void Game::initialize()
 	playground->initialize(worm_colour3, 110,109);*/
 	//playground->initialize(worm_colour, 276,275);
 
-	start_menu = SDL_LoadBMP( "C:/Users/Oscar/Workspace/Projektet/src/Bilder/meny.bmp" );
+	start_menu = SDL_LoadBMP( "C:/Users/Oscar/Workspace/Projektet/src/Meny.bmp" );
 	menu_all = SDL_LoadBMP( "C:/Users/Oscar/Workspace/Projektet/src/Bilder/meny_alla_mot_alla.bmp" );
 	menu_team = SDL_LoadBMP( "C:/Users/Oscar/Workspace/Projektet/src/Bilder/meny_lag.bmp" );
 	font = TTF_OpenFont( "C:/Users/Oscar/Workspace/Projektet/src/lazy.ttf", 28 );
-
-	run();
 }
 
 void Game::listen_to_keys()
@@ -167,7 +167,6 @@ void Game::draw_playground()
 
 void Game::draw_menu() {
 	draw_blank(window_height, 0, 400, 400);
-	SDL_Rect menu_pos;
 	menu_pos.x = window_height + 1;
 	menu_pos.y = 0;
 	if(in_start_menu)
@@ -184,6 +183,19 @@ void Game::draw_menu() {
 	{
 		SDL_BlitSurface( menu_all, NULL, display, &menu_pos );
 		SDL_Flip( display );
+	}
+
+	int check_box_size = check_box.size();
+	for(int check_box_index = 0; check_box_index < check_box_size; check_box_index++)
+	{
+		SDL_Rect draw_check_box;
+		draw_check_box.x = check_box[check_box_index]->x_koord;
+		draw_check_box.y = check_box[check_box_index]->y_koord;
+		draw_check_box.w = 20;
+		draw_check_box.h = 20;
+		SDL_FillRect(display, &draw_check_box, SDL_MapRGB(display->format, 0, 255, 0));
+		SDL_BlitSurface( NULL, NULL, display, &draw_check_box );
+		SDL_Flip(display);
 	}
 
 	SDL_Rect pointer;
@@ -205,11 +217,11 @@ void Game::draw_scoreboard() {
 	rect.w = 30;
 	rect.h = 30;
 
-	draw_blank(window_height + 80, 200, 50, 400);
+	draw_blank(window_height + 80, 100, 50, 400);
 
 	SDL_Rect position;
 	position.x = window_height + 80;
-	position.y = 200;
+	position.y = menu->first_position.y_koord;
 
 	int scoreboard_spacing = 50;
 
@@ -217,12 +229,12 @@ void Game::draw_scoreboard() {
 	//SDL_FillRect(display, &test, playground->worm_vector[0]->get_colour());
 	for(int worm_index = 0; worm_index < vector_size ; worm_index++)
 	{
-		rect.y = 200 + worm_index * scoreboard_spacing;
+		rect.y = menu->first_position.y_koord + worm_index * scoreboard_spacing;
 		SDL_FillRect(display, &rect, playground->worm_vector[worm_index]->get_colour());
 		//SDL_BlitSurface( hello, NULL, display, &rect );
 
 		std::stringstream strm;
-		position.y = 200 + worm_index * scoreboard_spacing;
+		position.y = menu->first_position.y_koord + worm_index * scoreboard_spacing;
 		strm << playground->worm_vector[worm_index]->get_score();
 		message = TTF_RenderText_Solid( font, strm.str().c_str(), textColor );
 		SDL_BlitSurface(message, NULL, display, &position);
@@ -234,7 +246,7 @@ void Game::draw_scoreboard() {
 
 void Game::game_finished() {
 	//draw_winner();
-	SDL_Delay(5000);
+	//SDL_Delay(5000);
 }
 
 
@@ -268,6 +280,7 @@ void Game::run() {
 	int fps = 0, framesSkipped = 0 ;
 	srand(time(NULL));
 	draw_boundaries();
+	draw_menu();
 
 	while(in_menu)
 	{
@@ -276,26 +289,27 @@ void Game::run() {
 		int timeElapsed = 0 ;
 		++fps;
 
-		/* update/draw */
-				timeElapsed = (now=SDL_GetTicks()) - past ;
-				if ( timeElapsed >= 1000/60  )
-				{
-					past = now ;
-					if ( framesSkipped++ >= frameSkip )
-					{
-						draw_menu();
-						++fps ;
-						framesSkipped = 0 ;
-					}
-				}
 
-				/* fps */
-				if ( now - pastFps >= 1000 )
-				{
-					pastFps = now ;
-					this->fpsChanged( fps );
-					fps = 0 ;
-				}
+		/* update/draw */
+		timeElapsed = (now=SDL_GetTicks()) - past ;
+		if ( timeElapsed >= 1000/60  )
+		{
+			past = now ;
+			if ( framesSkipped++ >= frameSkip )
+			{
+				//draw_menu();
+				++fps ;
+				framesSkipped = 0 ;
+			}
+		}
+
+		/* fps */
+		if ( now - pastFps >= 1000 )
+		{
+			pastFps = now ;
+			this->fpsChanged( fps );
+			fps = 0 ;
+		}
 
 		listen_to_keys();
 		if(keys[SDLK_RETURN] && in_start_menu)
@@ -315,6 +329,7 @@ void Game::run() {
 				break;
 			}
 			in_start_menu = false;
+			draw_menu();
 		}
 		else if(keys[SDLK_RETURN] && !in_start_menu)
 		{
@@ -329,60 +344,106 @@ void Game::run() {
 					playground->worm_vector.erase(playground->worm_vector.begin() + worm_index);
 				}
 			}
-			int left_controler = 0;
-			int right_controler = 0;
-			while(left_controler == 0)
+			int check_box_size = check_box.size();
+			int check_box_index = 0;
+			bool did_erase = false;
+			while(check_box_index < check_box_size-1)
 			{
-				listen_to_keys();
-				for ( int i=0; i<SDLK_LAST; ++i )
+				if(check_box[check_box_index]->y_koord == menu->marker_position.y_koord)
 				{
-					if(keys[i] != 0 && keys[i] != SDLK_SPACE
-							&& keys[i] != SDLK_ESCAPE)
+					check_box.erase(check_box.begin() + check_box_index);
+					check_box.erase(check_box.begin() + check_box_index);
+					did_erase = true;
+				}
+				check_box_index++;
+				check_box_size = check_box.size();
+			}
+			draw_menu();
+			if(!did_erase)
+			{
+				int left_controler = 0;
+				int right_controler = 0;
+				while(left_controler == 0)
+				{
+					listen_to_keys();
+					for ( int i=0; i<SDLK_LAST; ++i )
 					{
-						left_controler = i ;
+						if(keys[i] != 0 && keys[i] != SDLK_SPACE
+								&& keys[i] != SDLK_ESCAPE)
+						{
+							left_controler = i ;
+						}
 					}
 				}
-			}
+				check_box.push_back(new Position_class(window_height + 96,
+						menu->marker_position.y_koord));
+				draw_menu();
 
-			while(right_controler == 0)
-			{
-				listen_to_keys();
-				for ( int i=0; i<SDLK_LAST; ++i )
+				while(right_controler == 0)
 				{
-					if(keys[i] != 0 && i != left_controler
-							&& keys[i] != SDLK_SPACE && keys[i] != SDLK_ESCAPE)
+					listen_to_keys();
+					for ( int i=0; i<SDLK_LAST; ++i )
 					{
-						right_controler = i ;
+						if(keys[i] != 0 && i != left_controler
+								&& keys[i] != SDLK_SPACE && keys[i] != SDLK_ESCAPE)
+						{
+							right_controler = i ;
+						}
 					}
 				}
+				check_box.push_back(new Position_class(window_height + 188,
+						menu->marker_position.y_koord));
+				draw_menu();
+
+				playground->initialize(menu->execute_select_worm_menu(),
+						left_controler,right_controler);
 			}
-			/*SDL_Rect posx;
-			posx.x = 50;
-			posx.y = 50;
-			std::stringstream strm;
-			strm << left_controler;
-			message = TTF_RenderText_Solid( font, strm.str().c_str(), textColor );
-			SDL_BlitSurface(message, NULL, display, &posx);*/
-
-
-			playground->initialize(menu->execute_select_worm_menu(),
-					left_controler,right_controler);
 		}
 		else if(keys[SDLK_UP])
 		{
 			menu->move_up();
+			draw_menu();
 			SDL_Delay(300);
 		}
 		else if(keys[SDLK_DOWN])
 		{
 			menu->move_down();
+			draw_menu();
 			SDL_Delay(300);
 		}
 		else if(keys[SDLK_SPACE] && playground->worm_vector.size() >= 2)
 		{
-			in_menu = false;
-			SDL_Delay(300);
-			draw_blank(window_height + 1, 100, 400, window_height);
+			bool hot = false;
+			bool cold = false;
+			if(team_play)
+			{
+				int worm_vector_size = playground->worm_vector.size();
+				for(int worm_vector_index = 0; worm_vector_index < worm_vector_size; worm_vector_index++)
+				{
+					if(playground->worm_vector[worm_vector_index]->team == "cold")
+					{
+						cold = true;
+					}
+					else
+					{
+						hot = true;
+					}
+				}
+				if(cold && hot)
+				{
+					in_menu = false;
+					running = true;
+					SDL_Delay(300);
+					draw_blank(window_height + 1, 100, 400, window_height);
+				}
+			}
+			else
+			{
+				in_menu = false;
+				running = true;
+				SDL_Delay(300);
+				draw_blank(window_height + 1, 100, 400, window_height);
+			}
 
 		}
 
@@ -404,11 +465,11 @@ void Game::run() {
 		else if(keys[SDLK_SPACE])
 		{
 			SDL_Delay(300);
-			if(playground->survivor_vector.size() > 1 && !game_paused)
+			if(!playground->round_finished && !game_paused)
 			{
 				game_paused = true;
 			}
-			else if (playground->survivor_vector.size() <= 1)
+			else if (playground->round_finished)
 			{
 				draw_blank(playground->upper_left_corner->x_koord + 10,
 						playground->upper_left_corner->y_koord + 10,
@@ -439,13 +500,70 @@ void Game::run() {
 					playground->update(i,false,false);
 				}
 			}
-			playground->collision(display);
-			if(playground->game_finsished(team_play))
+			playground->collision(display, team_play);
+
+			/*draw_blank(50,50,50,20);
+			SDL_Rect posx;
+			posx.x = 50;
+			posx.y = 50;
+			std::stringstream strm;
+			strm << playground->test_variable2;
+			message = TTF_RenderText_Solid( font, strm.str().c_str(), textColor );
+			SDL_BlitSurface(message, NULL, display, &posx);
+			SDL_Flip(display);
+
+			draw_blank(50,100,50,20);
+			SDL_Rect posy;
+			posy.x = 50;
+			posy.y = 100;
+			std::stringstream strm2;
+			strm2 << playground->test_variable;
+			message = TTF_RenderText_Solid( font, strm2.str().c_str(), textColor );
+			SDL_BlitSurface(message, NULL, display, &posy);
+			SDL_Flip(display);*/
+
+			if(playground->round_finished)
 			{
-				game_finished();
-			}
-			if(playground->survivor_vector.size() <= 1)
-			{
+				if(playground->game_finished(team_play))
+				{
+					//game_finished();
+					in_menu = true;
+					in_start_menu = true;
+					team_play = false;
+					playground->reset();
+					menu->reset_menu();
+					int check_box_size = check_box.size();
+					while(check_box_size != 0)
+					{
+						check_box.erase(check_box.begin());
+						check_box_size = check_box.size();
+					}
+
+					SDL_Rect winner_colour;
+					winner_colour.x = window_height/2 - 40;
+					winner_colour.y = window_height/2 - 40;
+					winner_colour.w = 80;
+					winner_colour.h = 80;
+
+					int first = playground->worm_vector.size();
+					SDL_FillRect(display, &winner_colour,
+							playground->survivor_vector[first]->get_colour());
+					SDL_BlitSurface(NULL, NULL, display, &winner_colour);
+					SDL_Flip(display);
+
+					SDL_Rect winner_text;
+					winner_text.x = window_height/2 - 40;
+					winner_text.y = window_height/2 - 60;
+					std::stringstream strm;
+					strm << "Vinnaren är :";
+					message = TTF_RenderText_Solid( font, strm.str().c_str(), textColor );
+					SDL_BlitSurface(message, NULL, display, &winner_text);
+					SDL_Flip(display);
+
+					SDL_Delay(2000);
+					running = false;
+					run();
+				}
 				game_paused = true;
 			}
 		}
@@ -462,6 +580,22 @@ void Game::run() {
 			{
 				draw_playground();
 				draw_scoreboard();
+				if(playground->powerup_to_draw != NULL)
+				{
+					fill_circle(display, playground->powerup_to_draw->position.x_koord,
+							playground->powerup_to_draw->position.y_koord,
+							playground->powerup_to_draw->radius,
+							playground->powerup_to_draw->colour_id);
+					playground->powerup_to_draw = NULL;
+				}
+				if(playground->powerup_to_erase != NULL)
+				{
+					fill_circle(display, playground->powerup_to_erase->position.x_koord,
+							playground->powerup_to_erase->position.y_koord,
+							playground->powerup_to_erase->radius,
+							SDL_MapRGB(display->format, 0, 0, 0));
+					playground->powerup_to_erase = NULL;
+				}
 				++fps ;
 				framesSkipped = 0 ;
 			}

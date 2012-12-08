@@ -8,17 +8,15 @@
 class Powerup
 {
 
-private:
-	Position_class position;
-
 public:
+	Position_class position;
 	Powerup(Position_class, Uint32);
 	virtual ~Powerup() = default;
 
 	Uint32 colour_id;
 	int radius;
 
-	virtual void execute(int, std::vector<Worm>&) = 0;
+	virtual void execute(int, std::vector<Worm*>&) = 0;
 };
 
 #endif

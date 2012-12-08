@@ -6,6 +6,7 @@
 #include "Playground.h"
 #include "SDL_ttf.h"
 #include "Menu.h"
+#include "Position_class.h"
 
 class Game {
 
@@ -21,6 +22,8 @@ private:
 	int window_height;
 	bool game_paused = false;
 	bool in_start_menu = true;
+	std::vector<Position_class*> check_box;
+	SDL_Rect menu_pos;
 	SDL_Surface* display;
 	Playground* playground;
 	Menu* menu;

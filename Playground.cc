@@ -2,10 +2,17 @@
 #include <time.h>
 #include <math.h>
 #include <vector>
+#include "Powerup.h"
+#include "FasterMe.h"
 
 Playground::Playground(int window_height) {
 	upper_left_corner = new Position_class(0, 0);
 	bottom_right_corner = new Position_class(window_height,window_height);
+	round_finished = false;
+	time_to_next_powerup = 0;
+	powerup_to_draw = NULL;
+	powerup_to_erase = NULL;
+	test_variable = 0;
 }
 
 Uint32 Playground::get_pixel(SDL_Surface* display, double x, double y)
@@ -42,6 +49,7 @@ Uint32 Playground::get_pixel(SDL_Surface* display, double x, double y)
 void Playground::start_new_round()
 {
 	int worm_vector_size  = worm_vector.size();
+	round_finished = false;
 	for(int i = 0; i < worm_vector_size; i++)
 	{
 		worm_vector[i]->random_position(bottom_right_corner->x_koord);
@@ -50,71 +58,130 @@ void Playground::start_new_round()
 		worm_vector[i]->change_direction(angle);
 		worm_vector[i]->reset_worm();
 	}
+	int powerup_vector_size = powerup_vector.size();
+	for(int powerup_index = 0; powerup_index < powerup_vector_size; powerup_index++)
+	{
+		powerup_vector.erase(powerup_vector.begin());
+	}
 	survivor_vector = worm_vector;
 }
 
-void Playground::random_power_up_values() {
-	throw "Not yet implemented";
+void Playground::random_powerup_values()
+{
+	if(time_to_next_powerup <= 0)
+	{
+		time_to_next_powerup = rand() % 30000;
+		Uint32 powerup_colour = rand() % 16777215;
+		Position_class powerup_position;
+		powerup_position.random_position(bottom_right_corner->x_koord);
+		powerup_to_draw = new FasterMe(powerup_position, powerup_colour);
+		powerup_vector.push_back(powerup_to_draw);
+	}
+	else
+	{
+		time_to_next_powerup--;
+	}
 }
 
-void Playground::sort_vectors()
+void Playground::sort_vectors(bool team_play)
 {
 	int worm_vector_size = worm_vector.size();
 	std::vector<Worm*> temp_worm_vector;
 	Worm* temp_worm = NULL;
-	for(int worm_index = 0; worm_index < worm_vector_size -1; worm_index ++)
+	bool change = true;
+	while(change == true)
 	{
-		int next_worm_index = worm_index + 1;
-		if(worm_vector[worm_index]->get_score() < worm_vector[next_worm_index]->get_score())
+		change = false;
+		for(int worm_index = 0; worm_index < worm_vector_size -1; worm_index ++)
 		{
-			temp_worm = worm_vector[worm_index];
-			worm_vector[worm_index] = worm_vector[next_worm_index];
-			worm_vector[next_worm_index] = temp_worm;
+			int next_worm_index = worm_index + 1;
+			if(worm_vector[worm_index]->get_score() < worm_vector[next_worm_index]->get_score())
+			{
+				temp_worm = worm_vector[worm_index];
+				worm_vector[worm_index] = worm_vector[next_worm_index];
+				worm_vector[next_worm_index] = temp_worm;
+				change = true;
+			}
 		}
 	}
 }
 
-bool Playground::game_finsished(bool teamplay)
+bool Playground::game_finished(bool team_play)
 {
-	if(teamplay)
+	if(team_play)
 	{
 		int teamhot = -1;
-			int teamcold = -1;
-			int counter = 0;
-			while(teamhot == -1 || teamcold == -1)
+		int teamcold = -1;
+		int counter = 0;
+		while(teamhot == -1 || teamcold == -1)
+		{
+			if(worm_vector[counter]->team == "hot")
 			{
-				if(worm_vector[counter]->team == "hot")
-				{
-					teamhot = worm_vector[counter]->get_score();
-				}
-				else if(worm_vector[counter]->team == "cold")
-				{
-					teamcold = worm_vector[counter]->get_score();
-				}
-				counter++;
+				teamhot = worm_vector[counter]->get_score();
 			}
-			if((teamhot >= 10 && teamhot > teamcold + 2) ||
-					(teamcold >= 10 && teamcold > teamhot + 2))
+			else if(worm_vector[counter]->team == "cold")
 			{
-				return true;
+				teamcold = worm_vector[counter]->get_score();
 			}
-			else
-			{
-				return false;
-			}
+			counter++;
+		}
+		if((teamhot >= 10 && teamhot > teamcold + 2) ||
+				(teamcold >= 10 && teamcold > teamhot + 2))
+		{
+			return true;
+		}
+		else
+		{
+			return false;
+		}
 	}
 	else
 	{
 		int worm_vector_size = worm_vector.size();
-			return ((worm_vector[0]->get_score() - worm_vector[1]->get_score()) > 1) &&
-					(worm_vector[0]->get_score() > 10*worm_vector_size);
+		return ((worm_vector[0]->get_score() - worm_vector[1]->get_score()) > 1) &&
+				(worm_vector[0]->get_score() > 10*(worm_vector_size-1));
 	}
 }
 
-void Playground::collision(SDL_Surface* display)
+void Playground::team_collision()
+{
+	int cold_worms_alive = 0;
+	int hot_worms_alive = 0;
+	int surv_size = survivor_vector.size();
+	for(int survivor_vector_index = 0;
+			survivor_vector_index < surv_size; survivor_vector_index++)
+	{
+		if(survivor_vector[survivor_vector_index]->team == "cold")
+		{
+			cold_worms_alive++;
+		}
+		else
+		{
+			hot_worms_alive++;
+		}
+	}
+	if(cold_worms_alive <= 0 || hot_worms_alive <= 0)
+	{
+		std::string winner = survivor_vector[0]->team;
+		int worm_vector_size = worm_vector.size();
+		for(int worm_vector_index = 0;
+				worm_vector_index < worm_vector_size; worm_vector_index++)
+		{
+			if(worm_vector[worm_vector_index]->team == winner)
+			{
+				worm_vector[worm_vector_index]->add_score();
+			}
+		}
+		round_finished = true;
+	}
+}
+
+void Playground::collision(SDL_Surface* display, bool team_play)
 {
 	int survivor_vector_size = survivor_vector.size();
-	for(int worm_index = 0; worm_index < survivor_vector_size; worm_index++)
+	int worm_index = 0;
+	//for(int worm_index = 0; worm_index < survivor_vector_size; worm_index++)
+	while(worm_index < survivor_vector_size)
 	{
 
 		if(survivor_vector[worm_index]->get_distance_to_hole() > 0)
@@ -129,15 +196,51 @@ void Playground::collision(SDL_Surface* display)
 					center_y + thickness*sin((angle-30)*3.141592/180)) != bg_color;
 			bool left = get_pixel(display, center_x + thickness*cos((angle + 30)*3.141592/180),
 					center_y + thickness*sin((angle+30)*3.141592/180)) != bg_color;
+			Uint32 right_pixel_colour = get_pixel(display, center_x + thickness*cos((angle - 30)*3.141592/180),
+					center_y + thickness*sin((angle-30)*3.141592/180));
+			Uint32 left_pixel_colour = get_pixel(display, center_x + thickness*cos((angle + 30)*3.141592/180),
+					center_y + thickness*sin((angle+30)*3.141592/180));
 			if(right || left)
 			{
-				survivor_vector[worm_index]->kill_worm();
-				survivor_vector.erase(survivor_vector.begin() + worm_index);
-				for(int index = 0; index < survivor_vector_size-1; index++)
+				bool powerup_bool = true;
+				int powerup_vector_index = 0;
+				int powerup_vector_size = powerup_vector.size();
+				while(powerup_vector_index < powerup_vector_size)
 				{
-					survivor_vector[index]->add_score();
+					if(right_pixel_colour == powerup_vector[powerup_vector_index]->colour_id ||
+							left_pixel_colour == powerup_vector[powerup_vector_index]->colour_id)
+					{
+						powerup_vector[powerup_vector_index]->execute(worm_index, survivor_vector);
+						powerup_to_erase = powerup_vector[powerup_vector_index];
+						//delete powerup_vector[powerup_vector];
+						//powerup_vector.erase(powerup_vector.begin() + powerup_vector_index);
+						powerup_bool = false;
+						powerup_vector_index = powerup_vector_size;
+					}
+					powerup_vector_index++;
 				}
-				sort_vectors();
+				test_variable = powerup_vector_index;
+				if(powerup_bool)
+				{
+					survivor_vector[worm_index]->kill_worm();
+					survivor_vector.erase(survivor_vector.begin() + worm_index);
+					if(team_play)
+					{
+						team_collision();
+					}
+					else
+					{
+						for(int index = 0; index < survivor_vector_size -1; index++)
+						{
+							survivor_vector[index]->add_score();
+						}
+						int size = survivor_vector.size();
+						if(size <= 1)
+						{
+							round_finished = true;
+						}
+					}
+				}
 			}
 		}
 		else if(survivor_vector[worm_index]->get_position()->x_koord < 5 ||
@@ -147,25 +250,28 @@ void Playground::collision(SDL_Surface* display)
 		{
 			survivor_vector[worm_index]->kill_worm();
 			survivor_vector.erase(survivor_vector.begin() + worm_index);
-			for(int index = 0; index < survivor_vector_size-1; index++)
+			if(team_play)
 			{
-				survivor_vector[index]->add_score();
+				team_collision();
 			}
-			sort_vectors();
+			else
+			{
+				for(int index = 0; index < survivor_vector_size-1; index++)
+				{
+					survivor_vector[index]->add_score();
+				}
+			}
 		}
+		sort_vectors(team_play);
+		worm_index++;
+		survivor_vector_size = survivor_vector.size();
 	}
 }
 
-bool Playground::round_finished() {
-	if(survivor_vector.size() <= 1)
-	{
-		return true;
-	}
-	return false;
-}
 
 void Playground::update(int worm_index, bool left_bool, bool right_bool)
 {
+	random_powerup_values();
 	//survivor_vector[worm_index]->powerup_sharp_turn = true;
 	double degrees = 0;
 	int mirror_degrees = 0;
@@ -211,4 +317,15 @@ void Playground::initialize(Uint32 colour,
 	Worm* temp_worm = new Worm(colour, left_control, right_control, bottom_right_corner->x_koord);
 	worm_vector.push_back(temp_worm);
 	survivor_vector.push_back(temp_worm);
+}
+
+void Playground::reset()
+{
+	int worm_vector_size  = worm_vector.size();
+	for(int worm_index = 0; worm_index < worm_vector_size; worm_index++)
+	{
+		delete worm_vector[0];
+		worm_vector.erase(worm_vector.begin());
+	}
+	survivor_vector = worm_vector;
 }

@@ -11,12 +11,25 @@ Worm::Worm(Uint32 new_colour, int new_left_control, int new_right_control, int w
 	position->random_position(window_height);
 	//srand(time(NULL));
 	direction = rand() % 360;
+	if(colour > 70000)
+	{
+		team = "hot";
+	}
+	else
+	{
+		team = "cold";
+	}
 }
 
 int Worm::random_distance_to_hole()
 {
 	int distance = rand() % 5000;
 	return distance;
+}
+
+Worm::~Worm()
+{
+	delete[] position;
 }
 
 int Worm::get_distance_to_hole()

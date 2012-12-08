@@ -8,7 +8,6 @@ class Menu
 {
 
 private:
-	Position_class first_position;
 	bool team_play;
 	int spacing;
 	//SDL_Surface* background_image = 0;
@@ -24,6 +23,7 @@ private:
 
 public:
 
+	Position_class first_position;
 	int position;
 	Position_class marker_position;
 
@@ -38,6 +38,8 @@ public:
 	void move_up();
 
 	void move_down();
+
+	void reset_menu();
 };
 
 

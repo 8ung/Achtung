@@ -15,7 +15,7 @@ public:
 	double y_koord;
 
 	Position_class(int x = 0, int y = 0);
-	//~Position_class();
+	~Position_class();
 
 	void random_position(int window_height);
 };

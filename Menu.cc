@@ -24,6 +24,14 @@ int Menu::execute_start_menu()
 	return position;
 }
 
+void Menu::reset_menu()
+{
+	start_menu = true;
+	team_play = false;
+	position = 1;
+	marker_position = first_position;
+}
+
 Uint32 Menu::execute_select_worm_menu()
 {
 	switch(position)
