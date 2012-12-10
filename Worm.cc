@@ -69,6 +69,11 @@ Position_class* Worm::get_position()
 {
 	return position;
 }
+void Worm::set_position(double x, double y)
+{
+	position->x_koord = x;
+	position->y_koord = y;
+}
 
 Uint32 Worm::get_colour()
 {

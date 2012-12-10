@@ -64,7 +64,7 @@ void Game::initialize()
 	playground->initialize(worm_colour3, 110,109);*/
 	//playground->initialize(worm_colour, 276,275);
 
-	start_menu = SDL_LoadBMP( "C:/Users/Oscar/Workspace/Projektet/src/Meny.bmp" );
+	start_menu = SDL_LoadBMP( "C:/Users/Oscar/Workspace/Projektet/src/Bilder/Meny.bmp" );
 	menu_all = SDL_LoadBMP( "C:/Users/Oscar/Workspace/Projektet/src/Bilder/meny_alla_mot_alla.bmp" );
 	menu_team = SDL_LoadBMP( "C:/Users/Oscar/Workspace/Projektet/src/Bilder/meny_lag.bmp" );
 	font = TTF_OpenFont( "C:/Users/Oscar/Workspace/Projektet/src/lazy.ttf", 28 );
@@ -368,8 +368,8 @@ void Game::run() {
 					listen_to_keys();
 					for ( int i=0; i<SDLK_LAST; ++i )
 					{
-						if(keys[i] != 0 && keys[i] != SDLK_SPACE
-								&& keys[i] != SDLK_ESCAPE)
+						if(keys[i] != 0 && i != SDLK_SPACE
+								&& i != SDLK_ESCAPE)
 						{
 							left_controler = i ;
 						}
@@ -385,7 +385,7 @@ void Game::run() {
 					for ( int i=0; i<SDLK_LAST; ++i )
 					{
 						if(keys[i] != 0 && i != left_controler
-								&& keys[i] != SDLK_SPACE && keys[i] != SDLK_ESCAPE)
+								&& i != SDLK_SPACE && i != SDLK_ESCAPE)
 						{
 							right_controler = i ;
 						}
@@ -471,10 +471,7 @@ void Game::run() {
 			}
 			else if (playground->round_finished)
 			{
-				draw_blank(playground->upper_left_corner->x_koord + 10,
-						playground->upper_left_corner->y_koord + 10,
-						window_height - 20,
-						window_height - 20);
+				draw_boundaries();
 				playground->start_new_round();
 				game_paused = false;
 			}
@@ -517,7 +514,7 @@ void Game::run() {
 			posy.x = 50;
 			posy.y = 100;
 			std::stringstream strm2;
-			strm2 << playground->test_variable;
+			strm2 << SDL_MapRGB(display->format, 255, 255, 255);
 			message = TTF_RenderText_Solid( font, strm2.str().c_str(), textColor );
 			SDL_BlitSurface(message, NULL, display, &posy);
 			SDL_Flip(display);*/
@@ -586,6 +583,11 @@ void Game::run() {
 							playground->powerup_to_draw->position.y_koord,
 							playground->powerup_to_draw->radius,
 							playground->powerup_to_draw->colour_id);
+					SDL_Rect new_pos;
+					new_pos.x = playground->powerup_to_draw->position.x_koord -12.5;
+					new_pos.y = playground->powerup_to_draw->position.y_koord -12.5;
+					SDL_BlitSurface( playground->powerup_to_draw->image, NULL, display, &new_pos);
+					SDL_Flip( display );
 					playground->powerup_to_draw = NULL;
 				}
 				if(playground->powerup_to_erase != NULL)
@@ -594,6 +596,7 @@ void Game::run() {
 							playground->powerup_to_erase->position.y_koord,
 							playground->powerup_to_erase->radius,
 							SDL_MapRGB(display->format, 0, 0, 0));
+					//delete playground->powerup_to_erase;
 					playground->powerup_to_erase = NULL;
 				}
 				++fps ;

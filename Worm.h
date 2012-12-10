@@ -63,6 +63,8 @@ public:
 
 	void move();
 
+	void set_position(double, double);
+
 	void reset_worm();
 
 	void random_position(int);

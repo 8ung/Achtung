@@ -4,6 +4,10 @@
 #include <vector>
 #include "Powerup.h"
 #include "FasterMe.h"
+#include "FasterYou.h"
+#include "SlowerMe.h"
+#include "SlowerYou.h"
+#include "ThroughWallMe.h"
 
 Playground::Playground(int window_height) {
 	upper_left_corner = new Position_class(0, 0);
@@ -71,10 +75,50 @@ void Playground::random_powerup_values()
 	if(time_to_next_powerup <= 0)
 	{
 		time_to_next_powerup = rand() % 30000;
-		Uint32 powerup_colour = rand() % 16777215;
+		bool taken_colour = true;
+		Uint32 powerup_colour;
+		while (taken_colour)
+		{
+			taken_colour = false;
+			powerup_colour = rand() % 16777215;
+			int worm_vector_size = worm_vector.size();
+			for(int worm_vector_index = 0; worm_vector_index < worm_vector_size; worm_vector_index++)
+			{
+				if(worm_vector[worm_vector_index]->get_colour() == powerup_colour)
+				{
+					taken_colour = true;
+				}
+			}
+			int powerup_vector_size = powerup_vector.size();
+			for(int powerup_vector_index = 0; powerup_vector_index < powerup_vector_size; powerup_vector_index++)
+			{
+				if(powerup_vector[powerup_vector_index]->colour_id == powerup_colour)
+				{
+					taken_colour = true;
+				}
+			}
+		}
 		Position_class powerup_position;
 		powerup_position.random_position(bottom_right_corner->x_koord);
-		powerup_to_draw = new FasterMe(powerup_position, powerup_colour);
+		int random_powerup = rand() % 5;
+		switch (random_powerup)
+		{
+		case 0:
+			powerup_to_draw = new FasterMe(powerup_position, powerup_colour);
+			break;
+		case 1:
+			powerup_to_draw = new FasterYou(powerup_position, powerup_colour);
+			break;
+		case 2:
+			powerup_to_draw = new SlowerMe(powerup_position, powerup_colour);
+			break;
+		case 3:
+			powerup_to_draw = new SlowerYou(powerup_position, powerup_colour);
+			break;
+		case 4:
+			powerup_to_draw = new ThroughWallMe(powerup_position, powerup_colour);
+			break;
+		}
 		powerup_vector.push_back(powerup_to_draw);
 	}
 	else
@@ -125,8 +169,8 @@ bool Playground::game_finished(bool team_play)
 			}
 			counter++;
 		}
-		if((teamhot >= 10 && teamhot > teamcold + 2) ||
-				(teamcold >= 10 && teamcold > teamhot + 2))
+		if(((teamhot >= 10) && (teamhot > teamcold + 2)) ||
+				((teamcold >= 10) && (teamcold > teamhot + 2)))
 		{
 			return true;
 		}
@@ -139,7 +183,7 @@ bool Playground::game_finished(bool team_play)
 	{
 		int worm_vector_size = worm_vector.size();
 		return ((worm_vector[0]->get_score() - worm_vector[1]->get_score()) > 1) &&
-				(worm_vector[0]->get_score() > 10*(worm_vector_size-1));
+				(worm_vector[0]->get_score() >= 10*(worm_vector_size-1));
 	}
 }
 
@@ -183,23 +227,23 @@ void Playground::collision(SDL_Surface* display, bool team_play)
 	//for(int worm_index = 0; worm_index < survivor_vector_size; worm_index++)
 	while(worm_index < survivor_vector_size)
 	{
-
+		double thickness = survivor_vector[worm_index]->thickness + 1.3;
+		double angle = survivor_vector[worm_index]->get_direction();
+		double center_x = survivor_vector[worm_index]->get_position()->x_koord;
+		double center_y = survivor_vector[worm_index]->get_position()->y_koord;
+		Uint32 right_pixel_colour = get_pixel(display, center_x + thickness*cos((angle - 30)*3.141592/180),
+				center_y + thickness*sin((angle-30)*3.141592/180));
+		Uint32 left_pixel_colour = get_pixel(display, center_x + thickness*cos((angle + 30)*3.141592/180),
+				center_y + thickness*sin((angle+30)*3.141592/180));
+		int offset = 17;
 		if(survivor_vector[worm_index]->get_distance_to_hole() > 0)
 		{
-			double center_x = survivor_vector[worm_index]->get_position()->x_koord;
-			double center_y = survivor_vector[worm_index]->get_position()->y_koord;
-			double thickness = survivor_vector[worm_index]->thickness + 1.3;
-			double angle = survivor_vector[worm_index]->get_direction();
 			Uint32 bg_color = SDL_MapRGB(display->format, 0, 0, 0);
 
 			bool right = get_pixel(display, center_x + thickness*cos((angle - 30)*3.141592/180),
 					center_y + thickness*sin((angle-30)*3.141592/180)) != bg_color;
 			bool left = get_pixel(display, center_x + thickness*cos((angle + 30)*3.141592/180),
 					center_y + thickness*sin((angle+30)*3.141592/180)) != bg_color;
-			Uint32 right_pixel_colour = get_pixel(display, center_x + thickness*cos((angle - 30)*3.141592/180),
-					center_y + thickness*sin((angle-30)*3.141592/180));
-			Uint32 left_pixel_colour = get_pixel(display, center_x + thickness*cos((angle + 30)*3.141592/180),
-					center_y + thickness*sin((angle+30)*3.141592/180));
 			if(right || left)
 			{
 				bool powerup_bool = true;
@@ -212,15 +256,37 @@ void Playground::collision(SDL_Surface* display, bool team_play)
 					{
 						powerup_vector[powerup_vector_index]->execute(worm_index, survivor_vector);
 						powerup_to_erase = powerup_vector[powerup_vector_index];
-						//delete powerup_vector[powerup_vector];
+						//powerup_vector[powerup_vector_index] = nullptr;
+						//std::vector<Powerup*>::iterator it;
+						//it = remove(powerup_vector.begin(),powerup_vector.end(),nullptr);
+						//delete powerup_vector[powerup_vector_index];
 						//powerup_vector.erase(powerup_vector.begin() + powerup_vector_index);
 						powerup_bool = false;
 						powerup_vector_index = powerup_vector_size;
 					}
 					powerup_vector_index++;
 				}
-				test_variable = powerup_vector_index;
-				if(powerup_bool)
+				if(survivor_vector[worm_index]->powerup_through_wall &&
+						((left_pixel_colour == 16777215) || (right_pixel_colour == 16777215)))
+				{
+					if(center_x < offset)
+					{
+						survivor_vector[worm_index]->set_position(bottom_right_corner->x_koord - offset, center_y);
+					}
+					else if(center_x > bottom_right_corner->x_koord - offset)
+					{
+						survivor_vector[worm_index]->set_position(offset, center_y);
+					}
+					else if(center_y < offset)
+					{
+						survivor_vector[worm_index]->set_position(center_x, bottom_right_corner->y_koord - offset);
+					}
+					else if(center_y > bottom_right_corner->y_koord - offset)
+					{
+						survivor_vector[worm_index]->set_position(center_x, offset);
+					}
+				}
+				else if(powerup_bool)
 				{
 					survivor_vector[worm_index]->kill_worm();
 					survivor_vector.erase(survivor_vector.begin() + worm_index);
@@ -243,31 +309,55 @@ void Playground::collision(SDL_Surface* display, bool team_play)
 				}
 			}
 		}
-		else if(survivor_vector[worm_index]->get_position()->x_koord < 5 ||
-				survivor_vector[worm_index]->get_position()->y_koord < 5 ||
-				survivor_vector[worm_index]->get_position()->x_koord > bottom_right_corner->x_koord - 5 ||
-				survivor_vector[worm_index]->get_position()->y_koord > bottom_right_corner->y_koord - 5)
+		else if(survivor_vector[worm_index]->get_position()->x_koord < 10 ||
+				survivor_vector[worm_index]->get_position()->y_koord < 10 ||
+				survivor_vector[worm_index]->get_position()->x_koord > bottom_right_corner->x_koord - 10 ||
+				survivor_vector[worm_index]->get_position()->y_koord > bottom_right_corner->y_koord - 10)
 		{
-			survivor_vector[worm_index]->kill_worm();
-			survivor_vector.erase(survivor_vector.begin() + worm_index);
-			if(team_play)
+			if(//survivor_vector[worm_index]->powerup_through_wall &&
+					((left_pixel_colour == 16777215) || (right_pixel_colour == 16777215)))
 			{
-				team_collision();
+				if(center_x < offset)
+				{
+					survivor_vector[worm_index]->set_position(bottom_right_corner->x_koord - offset, center_y);
+				}
+				else if(center_x > bottom_right_corner->x_koord - offset)
+				{
+					survivor_vector[worm_index]->set_position(offset, center_y);
+				}
+				else if(center_y < offset)
+				{
+					survivor_vector[worm_index]->set_position(center_x, bottom_right_corner->y_koord - offset);
+				}
+				else if(center_y > bottom_right_corner->y_koord - offset)
+				{
+					survivor_vector[worm_index]->set_position(center_x, offset);
+				}
 			}
 			else
 			{
-				for(int index = 0; index < survivor_vector_size-1; index++)
+				survivor_vector[worm_index]->kill_worm();
+				survivor_vector.erase(survivor_vector.begin() + worm_index);
+				if(team_play)
 				{
-					survivor_vector[index]->add_score();
+					team_collision();
+				}
+				else
+				{
+					for(int index = 0; index < survivor_vector_size-1; index++)
+					{
+						survivor_vector[index]->add_score();
+					}
 				}
 			}
+
+
 		}
 		sort_vectors(team_play);
 		worm_index++;
 		survivor_vector_size = survivor_vector.size();
 	}
 }
-
 
 void Playground::update(int worm_index, bool left_bool, bool right_bool)
 {
