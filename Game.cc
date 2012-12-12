@@ -102,9 +102,10 @@ void Game::fps_changed(int fps)
 }
 
 /*
- * Ritar ut menyn och spelreglerna. Vid knapptryckningar
+ * Ritar ut menyn och spelreglerna. Vid knapptryckningar uppdateras skärmen.
  */
-void Game::draw_menu() {
+void Game::draw_menu()
+{
 	// Ritar ut en svart fyrkant 400 x 400 där menyn är (rensar)
 	draw_blank(window_height, 0, 400, 400);
 	menu_pos.x = window_height + 1;
@@ -157,6 +158,9 @@ void Game::draw_menu() {
 	SDL_Flip(display);
 }
 
+/*
+ * Ritar ut en svart fyrkant på koordinaterna x och y med given bredd och höjd. Används för att sudda
+ */
 void Game::draw_blank(int x, int y, int width, int height)
 {
 	SDL_Rect blank;
@@ -167,6 +171,9 @@ void Game::draw_blank(int x, int y, int width, int height)
 	SDL_FillRect(display, &blank, SDL_MapRGB(display->format, 0, 0, 0));
 }
 
+/*
+ * Ritar ut en vit ram som representerar spelplanens väggar
+ */
 void Game::draw_boundaries()
 {
 	SDL_Rect boundary;
@@ -178,6 +185,9 @@ void Game::draw_boundaries()
 	draw_blank(10, 10, window_height - 20, window_height - 20);
 }
 
+/*
+ * fill circle ritar en cirkel. Används för powerup och för maskens huvud.
+ */
 void Game::fill_circle(SDL_Surface* surface, double cx, double cy,
 		double radius, Uint32 pixel)
 {
@@ -203,6 +213,9 @@ void Game::fill_circle(SDL_Surface* surface, double cx, double cy,
 	}
 }
 
+/*
+ * draw playground ritar ut maskarna på deras nya positioner
+ */
 void Game::draw_playground()
 {
 	int survivor_vector_size = playground->survivor_vector.size();
@@ -221,6 +234,9 @@ void Game::draw_playground()
 	SDL_Flip(display);
 }
 
+/*
+ * draw scoreboard uppdaterar och ritar ut poängtavlan.
+ */
 void Game::draw_scoreboard()
 {
 	// Rensar resultattavlan
@@ -253,6 +269,9 @@ void Game::draw_scoreboard()
 	SDL_Flip( display );
 }
 
+/*
+ * Återställer alla variabler efter avslutat spel.
+ */
 void Game::game_finished()
 {
 	in_menu = true;
@@ -295,6 +314,9 @@ void Game::game_finished()
 	run();
 }
 
+/*
+ * När användaren startar spelet så kommer man till en meny. Menyn startas med menu_loop.
+ */
 void Game::menu_loop(int& past, int& now, int& pastFps, int& fps, int& framesSkipped)
 {
 	int timeElapsed = 0;
@@ -318,12 +340,12 @@ void Game::menu_loop(int& past, int& now, int& pastFps, int& fps, int& framesSki
 		this->fps_changed(fps);
 		fps = 0;
 	}
-
+	// Tar in knapptryckningar
 	listen_to_keys();
-	if(keys[SDLK_RETURN] && in_start_menu)
+	if(keys[SDLK_RETURN] && in_start_menu) //Om enter trycks in i första menyfönstret
 	{
 		SDL_Delay(300); // Delay för att inte utföra knapptryck oönskat många gånger
-		int position = menu->execute_start_menu();
+		int position = menu->execute_start_menu(); // Variablen bestämmer vilket läge markören står på i menyn vid enterslag.
 		switch(position)
 		{
 		case 1:
@@ -339,23 +361,24 @@ void Game::menu_loop(int& past, int& now, int& pastFps, int& fps, int& framesSki
 		in_start_menu = false;
 		draw_menu();
 	}
-	else if(keys[SDLK_RETURN] && !in_start_menu)
+	// I denna meny väljs färg, kontroller och antal spelare
+	else if(keys[SDLK_RETURN] && !in_start_menu) //Om enter trycks in i andra menyfönstret
 	{
 		SDL_Delay(300);	// Delay för att inte utföra knapptryck oönskat många gånger
 		int worm_vector_size = playground->worm_vector.size();
 		for(int worm_index = 0; worm_index < worm_vector_size; worm_index++)
 		{
 			if(playground->worm_vector[worm_index]->get_colour() ==
-					menu->execute_select_worm_menu())
+					menu->execute_select_worm_menu()) // Om en tidigare vald mask markeras igen med enter tas den bort.
 			{
 				playground->survivor_vector.erase(playground->survivor_vector.begin() + worm_index);
 				playground->worm_vector.erase(playground->worm_vector.begin() + worm_index);
 			}
 		}
-		int check_box_size = check_box.size();
+		int check_box_size = check_box.size(); // antal tidigare valda kontroller
 		int check_box_index = 0;
 		bool did_erase = false;
-		while(check_box_index < check_box_size - 1)
+		while(check_box_index < check_box_size - 1) // Om kvadraterna redan är ifyllda så töms de.
 		{
 			if(check_box[check_box_index]->y_koord == menu->marker_position.y_koord)
 			{
@@ -367,6 +390,7 @@ void Game::menu_loop(int& past, int& now, int& pastFps, int& fps, int& framesSki
 			check_box_size = check_box.size();
 		}
 		draw_menu();
+		//Om det är så att vi valt en tidigare ej vald mask så sätts här vänster- och högerkontroll till masken.
 		if(!did_erase)
 		{
 			int left_controler = 0;
@@ -408,19 +432,19 @@ void Game::menu_loop(int& past, int& now, int& pastFps, int& fps, int& framesSki
 					left_controler,right_controler);
 		}
 	}
-	else if(keys[SDLK_UP])
+	else if(keys[SDLK_UP]) // Om pil upp tryckts
 	{
-		menu->move_up();
+		menu->move_up(); // Flytta markörens läge
 		draw_menu();
 		SDL_Delay(300); // Delay för att inte utföra knapptryck oönskat många gånger
 	}
-	else if(keys[SDLK_DOWN])
+	else if(keys[SDLK_DOWN]) // Om pil ned tryckts
 	{
-		menu->move_down();
+		menu->move_down(); // Flytta markörens läge
 		draw_menu();
 		SDL_Delay(300); // Delay för att inte utföra knapptryck oönskat många gånger
 	}
-	else if(keys[SDLK_ESCAPE] && !in_start_menu)
+	else if(keys[SDLK_ESCAPE] && !in_start_menu) // om escape tryckts. Gå tillbaka till första menyn. Ta bort ev. skapade maskar.
 	{
 		SDL_Delay(300); // Delay för att inte utföra knapptryck oönskat många gånger
 		playground->reset();
@@ -435,12 +459,12 @@ void Game::menu_loop(int& past, int& now, int& pastFps, int& fps, int& framesSki
 		menu->reset_menu();
 		draw_menu();
 	}
-	else if(keys[SDLK_SPACE] && (playground->worm_vector.size() >= 2))
+	else if(keys[SDLK_SPACE] && (playground->worm_vector.size() >= 2)) // Om mellanslag tryckts. Starta spelet om minst två maskar valts
 	{
 		SDL_Delay(300); // Delay för att inte utföra knapptryck oönskat många gånger
 		bool hot = false;
 		bool cold = false;
-		if(team_play)
+		if(team_play) // Om lagspel måste det finnas någon mask i varje lag
 		{
 			int worm_vector_size = playground->worm_vector.size();
 			for(int worm_vector_index = 0;
@@ -473,17 +497,20 @@ void Game::menu_loop(int& past, int& now, int& pastFps, int& fps, int& framesSki
 	}
 }
 
+/*
+ *Själva spelloopen. Anropas efter menyn.
+ */
 void Game::game_loop(int& past, int& now, int& pastFps, int& fps, int& framesSkipped)
 {
 	int timeElapsed = 0;
 	listen_to_keys();
 	++fps;
 	int survivor_vector_size = playground->survivor_vector.size();
-	if(keys[SDLK_ESCAPE])
+	if(keys[SDLK_ESCAPE]) // Programmet avslutas om escape trycks
 	{
 		quit();
 	}
-	else if(keys[SDLK_SPACE])
+	else if(keys[SDLK_SPACE]) // Spelet pausas och återupptas om mellanslag trycks
 	{
 		SDL_Delay(300);
 		if(!playground->round_finished && !game_paused)
@@ -507,30 +534,30 @@ void Game::game_loop(int& past, int& now, int& pastFps, int& fps, int& framesSki
 		{
 			if(keys[playground->survivor_vector[i]->get_left_control()] == 1)
 			{
-				playground->update(i, true, false);
+				playground->update(i, true, false); // Uppdatera mask i. Den svänger vänster.
 			}
 			else if(keys[playground->survivor_vector[i]->get_right_control()] == 1)
 			{
-				playground->update(i, false, true);
+				playground->update(i, false, true);// Uppdatera mask i. Den svänger höger.
 			}
 			else
 			{
-				playground->update(i, false, false);
+				playground->update(i, false, false); // Uppdatera mask i. Den svänger inte.
 			}
 		}
-		playground->collision(display, team_play);
+		playground->collision(display, team_play); //Kontrollerar om det skett en kollision och hanterar de fallen.
 
-		if(playground->round_finished)
+		if(playground->round_finished) //om omgången är slut
 		{
-			if(playground->game_finished(team_play))
+			if(playground->game_finished(team_play)) // om spelet är slut
 			{
 				game_finished();
 			}
-			game_paused = true;
+			game_paused = true; //Spelet pausar till mellanslag trycks
 		}
 	}
 
-	// Uppdatera fönster samt utföra ritfunktionerna
+	// Uppdatera fönster samt utföra ritfunktionerna.
 	timeElapsed = (now = SDL_GetTicks()) - past;
 	if (timeElapsed >= 1000 / 60)
 	{
@@ -572,6 +599,9 @@ void Game::game_loop(int& past, int& now, int& pastFps, int& fps, int& framesSki
 	}
 }
 
+/*
+ * Avslutar programmloopen, stänger alla fönster
+ */
 void Game::quit()
 {
 	in_menu = 0;
@@ -583,7 +613,9 @@ void Game::quit()
 	SDL_FreeSurface(text);
 	SDL_FreeSurface(display);
 }
-
+/*
+ * Programmets startfunktion. Anropas från main för att starta programmet.
+ */
 void Game::run()
 {
 	int past = SDL_GetTicks();
