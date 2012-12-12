@@ -59,6 +59,7 @@ void Game::initialize()
 	start_menu = SDL_LoadBMP( "Meny.bmp" );
 	menu_all = SDL_LoadBMP( "meny_alla_mot_alla.bmp" );
 	menu_team = SDL_LoadBMP( "meny_lag.bmp" );
+	rules = SDL_LoadBMP( "Instruction_pic2.bmp" );
 	font = TTF_OpenFont( "lazy.ttf", 28 );
 }
 
@@ -139,16 +140,14 @@ void Game::draw_boundaries()
 
 void Game::draw_playground()
 {
-
-
 	int survivor_vector_size = playground->survivor_vector.size();
 	for(int worm_index = 0; worm_index < survivor_vector_size; worm_index++)
 	{
 		if(playground->survivor_vector[worm_index]->get_distance_to_hole() > 0)
 		{
 			/* Create visible worm */
-			double worm_xpos = playground->survivor_vector[worm_index]->get_position()->x_koord;
-			double worm_ypos = playground->survivor_vector[worm_index]->get_position()->y_koord;
+			double worm_xpos = playground->survivor_vector[worm_index]->position->x_koord;
+			double worm_ypos = playground->survivor_vector[worm_index]->position->y_koord;
 			Uint32 worm_colour = playground->survivor_vector[worm_index]->get_colour();
 			int worm_thickness = playground->survivor_vector[worm_index]->thickness;
 			fill_circle( display, worm_xpos, worm_ypos, worm_thickness, worm_colour);
@@ -176,6 +175,13 @@ void Game::draw_menu() {
 		SDL_BlitSurface( menu_all, NULL, display, &menu_pos );
 		SDL_Flip( display );
 	}
+
+	game_rules.x = 50;
+	game_rules.y = 50;
+	SDL_BlitSurface( rules, NULL, display, &game_rules );
+	SDL_Flip( display );
+
+
 
 	int check_box_size = check_box.size();
 	for(int check_box_index = 0; check_box_index < check_box_size; check_box_index++)
@@ -403,6 +409,21 @@ void Game::run() {
 			draw_menu();
 			SDL_Delay(300);
 		}
+		else if(keys[SDLK_ESCAPE] && !in_start_menu)
+		{
+			SDL_Delay(300);
+			playground->reset();
+			int check_box_size = check_box.size();
+			int check_box_index = 0;
+			while(check_box_index < check_box_size)
+			{
+				check_box.erase(check_box.begin());
+				check_box_index++;
+			}
+			in_start_menu = true;
+			menu->reset_menu();
+			draw_menu();
+		}
 		else if(keys[SDLK_SPACE] && playground->worm_vector.size() >= 2)
 		{
 			bool hot = false;
@@ -436,6 +457,10 @@ void Game::run() {
 				SDL_Delay(300);
 				draw_blank(window_height + 1, 100, 400, window_height);
 			}
+			draw_blank(playground->upper_left_corner->x_koord + 10,
+						playground->upper_left_corner->y_koord + 10,
+						window_height - 20,
+						window_height - 20);
 
 		}
 

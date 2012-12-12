@@ -10,6 +10,7 @@
 #include "ThroughWallMe.h"
 #include "ThinnerMe.h"
 #include "ThickerYou.h"
+#include "MirrorYou.h"
 
 Playground::Playground(int window_height) {
 	upper_left_corner = new Position_class(0, 0);
@@ -102,7 +103,7 @@ void Playground::random_powerup_values()
 		}
 		Position_class powerup_position;
 		powerup_position.random_position(bottom_right_corner->x_koord);
-		int random_powerup = rand() % 7;
+		int random_powerup = rand() % 8;
 		switch (random_powerup)
 		{
 		case 0:
@@ -125,6 +126,9 @@ void Playground::random_powerup_values()
 			break;
 		case 6:
 			powerup_to_draw = new ThickerYou(powerup_position, powerup_colour);
+			break;
+		case 7:
+			powerup_to_draw = new MirrorYou(powerup_position, powerup_colour);
 			break;
 
 		}
@@ -238,8 +242,8 @@ void Playground::collision(SDL_Surface* display, bool team_play)
 	{
 		double thickness = survivor_vector[worm_index]->thickness + 1.3;
 		double angle = survivor_vector[worm_index]->get_direction();
-		double center_x = survivor_vector[worm_index]->get_position()->x_koord;
-		double center_y = survivor_vector[worm_index]->get_position()->y_koord;
+		double center_x = survivor_vector[worm_index]->position->x_koord;
+		double center_y = survivor_vector[worm_index]->position->y_koord;
 		Uint32 right_pixel_colour = get_pixel(display, center_x + thickness*cos((angle - 30)*3.141592/180),
 				center_y + thickness*sin((angle-30)*3.141592/180));
 		Uint32 left_pixel_colour = get_pixel(display, center_x + thickness*cos((angle + 30)*3.141592/180),
@@ -313,10 +317,10 @@ void Playground::collision(SDL_Surface* display, bool team_play)
 				}
 			}
 		}
-		else if(survivor_vector[worm_index]->get_position()->x_koord < 10 ||
-				survivor_vector[worm_index]->get_position()->y_koord < 10 ||
-				survivor_vector[worm_index]->get_position()->x_koord > bottom_right_corner->x_koord - 10 ||
-				survivor_vector[worm_index]->get_position()->y_koord > bottom_right_corner->y_koord - 10)
+		else if(survivor_vector[worm_index]->position->x_koord < 10 ||
+				survivor_vector[worm_index]->position->y_koord < 10 ||
+				survivor_vector[worm_index]->position->x_koord > bottom_right_corner->x_koord - 10 ||
+				survivor_vector[worm_index]->position->y_koord > bottom_right_corner->y_koord - 10)
 		{
 			if((survivor_vector[worm_index]->powerup_through_wall == true) &&
 					((left_pixel_colour == 16777215) || (right_pixel_colour == 16777215)))
@@ -367,19 +371,8 @@ void Playground::update(int worm_index, bool left_bool, bool right_bool)
 {
 	random_powerup_values();
 	//survivor_vector[worm_index]->powerup_sharp_turn = true;
-	double degrees = 0;
+	double degrees = turn_ratio;
 	int mirror_degrees = 0;
-	if(survivor_vector[worm_index]->powerup_sharp_turn == true)
-	{
-		if(SDL_GetTicks() % 90 == 1)
-		{
-			degrees = sharp_turn;
-		}
-	}
-	else
-	{
-		degrees = turn_ratio;
-	}
 	if(survivor_vector[worm_index]->powerup_mirror == true)
 	{
 		mirror_degrees = -1;
@@ -395,7 +388,7 @@ void Playground::update(int worm_index, bool left_bool, bool right_bool)
 	}
 	else if(right_bool)
 	{
-		survivor_vector[worm_index]->change_direction(- mirror_degrees * degrees);
+		survivor_vector[worm_index]->change_direction(-1 * mirror_degrees * degrees);
 		survivor_vector[worm_index]->move();
 	}
 	else

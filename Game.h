@@ -24,6 +24,8 @@ private:
 	bool in_start_menu = true;
 	std::vector<Position_class*> check_box;
 	SDL_Rect menu_pos;
+	SDL_Rect game_rules;
+	SDL_Surface* rules = nullptr;
 	SDL_Surface* display;
 	Playground* playground;
 	Menu* menu;
@@ -31,8 +33,8 @@ private:
 	SDL_Surface* start_menu = nullptr;
 	SDL_Surface* menu_all = nullptr;
 	SDL_Surface* menu_team = nullptr;
-	SDL_Surface *message = NULL;
-	TTF_Font *font = NULL;
+	SDL_Surface* message = NULL;
+	TTF_Font* font = NULL;
 	SDL_Color textColor = { 255, 255, 255 };
 
 
