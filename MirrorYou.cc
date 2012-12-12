@@ -8,6 +8,9 @@ MirrorYou::MirrorYou(Position_class new_position, Uint32 color)
 :Powerup(new_position, color, "mirror_you_power.bmp"), affect_map(false)
 {}
 
+/*execute anropas då en mask kör in i en mirror_you-powerup. Den går igenom survivor_vector (de maskar som
+fortfarande lever) och ändrar den boolska variabeln "powerup_mirror" till true. Detta utförs i alla maskar med
+undantag för den som tog powerupen dvs den mask som har "index" som placering i "survivor_vector".*/
 void MirrorYou::execute(int index, vector<Worm*>& Worm_vector)
 {
 	int vector_size = Worm_vector.size();

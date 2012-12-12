@@ -126,15 +126,12 @@ void Game::draw_winner()
 void Game::draw_boundaries()
 {
 	SDL_Rect boundary;
-	boundary.x = playground->upper_left_corner->x_koord;
-	boundary.y = playground->upper_left_corner->y_koord;
+	boundary.x = 0;
+	boundary.y = 0;
 	boundary.w = window_height;
 	boundary.h = window_height;
-	draw_rectangle(display, &boundary, 255,255,255);
-	draw_blank(playground->upper_left_corner->x_koord + 10,
-			playground->upper_left_corner->y_koord + 10,
-			window_height - 20,
-			window_height - 20);
+	draw_rectangle(display, &boundary, 255, 255, 255);
+	draw_blank(10, 10, window_height - 20, window_height - 20);
 }
 
 
@@ -457,15 +454,10 @@ void Game::run() {
 				SDL_Delay(300);
 				draw_blank(window_height + 1, 100, 400, window_height);
 			}
-			draw_blank(playground->upper_left_corner->x_koord + 10,
-						playground->upper_left_corner->y_koord + 10,
-						window_height - 20,
-						window_height - 20);
+			draw_blank(10, 10, window_height - 20, window_height - 20);
 
 		}
 
-
-		/* sleep? */
 		SDL_Delay( 1 );
 	}
 

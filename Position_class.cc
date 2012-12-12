@@ -12,15 +12,12 @@ Position_class::Position_class(const int x, const int y)
 }
 
 Position_class::~Position_class()
-{
+{}
 
-}
-
+//random_position anropas då en mask eller powerup ska slumpas ut på spelplanen.
 void Position_class::random_position(int window_height)
 {
-	//srand(time(NULL));
 	x_koord = rand() % (window_height - 2 * boundary_diff) + boundary_diff;
-	//srand(time(NULL));
 	y_koord = rand() % (window_height - 2 * boundary_diff) + boundary_diff;
 }
 

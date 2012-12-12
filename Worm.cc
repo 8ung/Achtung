@@ -48,6 +48,9 @@ int Worm::get_right_control()
 	return right_control;
 }
 
+/*change_direction anropas då en mask ska svänga. Om det är så att värdet för "direction" går över 360 så ändras
+ * värdet till 0. Om det är så att "direction" går under noll så ändras den istället till 360.
+ */
 void Worm::change_direction(double degrees)
 {
 	direction = direction - degrees;
@@ -72,6 +75,7 @@ void Worm::set_position(double x, double y)
 	position->y_koord = y;
 }
 
+/*move anväder "direction" och "speed" för att beräkna maskens nya position.*/
 void Worm::move()
 {
 	if(distance_to_hole == -350)	// 350 är antalet loopar som masken räknas som ett hål
