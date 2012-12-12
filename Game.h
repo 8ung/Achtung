@@ -42,11 +42,11 @@ private:
 
 	void listen_to_keys();
 
-	void key_pressed(SDL_Event* event);
+	void key_pressed(const SDL_Event*);
 
-	void key_unpressed(SDL_Event* event);
+	void key_unpressed(const SDL_Event*);
 
-	void fps_changed(int);
+	void fps_changed(const int);
 
 	void menu_loop(int&, int&, int&, int&, int&);
 
@@ -54,11 +54,12 @@ private:
 
 	void draw_menu();
 
-	void draw_blank(int, int, int, int);
+	void draw_blank(const int, const int, const int, const int);
 
 	void draw_boundaries();
 
-	void fill_circle(SDL_Surface*, double, double, double, Uint32);
+	void fill_circle(const SDL_Surface*, const double, const double,
+			const double, const Uint32);
 
 	void draw_playground();
 

@@ -80,7 +80,7 @@ void Game::listen_to_keys()
 /*
  * Sätter 1:a på tangenter som är nedtryckta
  */
-void Game::key_pressed(SDL_Event* event)
+void Game::key_pressed(const SDL_Event* event)
 {
 	keys[event->key.keysym.sym] = 1;
 }
@@ -88,13 +88,13 @@ void Game::key_pressed(SDL_Event* event)
 /*
  * Sätter 0:a på tangenter som inte är nedtryckta
  */
-void Game::key_unpressed(SDL_Event* event)
+void Game::key_unpressed(const SDL_Event* event)
 {
 	keys[event->key.keysym.sym] = 0;
 }
 
 
-void Game::fps_changed(int fps)
+void Game::fps_changed(const int fps)
 {
 	char szFps[128];
 	sprintf( szFps, "%s: %d FPS", "Achtung, die Kurve ! ", fps);
@@ -161,7 +161,7 @@ void Game::draw_menu()
 /*
  * Ritar ut en svart fyrkant på koordinaterna x och y med given bredd och höjd. Används för att sudda
  */
-void Game::draw_blank(int x, int y, int width, int height)
+void Game::draw_blank(const int x, const int y, const int width, const int height)
 {
 	SDL_Rect blank;
 	blank.x = x;
@@ -188,7 +188,7 @@ void Game::draw_boundaries()
 /*
  * fill circle ritar en cirkel. Används för powerup och för maskens huvud.
  */
-void Game::fill_circle(SDL_Surface* surface, double cx, double cy,
+void Game::fill_circle(const SDL_Surface* surface, const double cx, const double cy,
 		double radius, Uint32 pixel)
 {
 	static const int BPP = 4;
