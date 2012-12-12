@@ -11,69 +11,68 @@
 class Game {
 
 private:
+	Playground* playground;
+	Menu* menu;
+	SDL_Surface* rules = nullptr;
+	SDL_Surface* display = nullptr;
+	SDL_Surface* start_menu = nullptr;
+	SDL_Surface* menu_all = nullptr;
+	SDL_Surface* menu_team = nullptr;
+	SDL_Surface* text = nullptr;
+	TTF_Font* font = NULL;
+	SDL_Color textColor = { 255, 255, 255 };
+	int window_height;
 	bool team_play = false;
 	Uint32 input_colour;
 	int input_left_controler;
 	int input_right_controler;
-	int keys[ SDLK_LAST ];
+	SDL_Event event;
+	int keys[SDLK_LAST];
 	int frameSkip;
-	int running;
 	bool in_menu;
-	int window_height;
-	bool game_paused = false;
 	bool in_start_menu = true;
 	std::vector<Position_class*> check_box;
 	SDL_Rect menu_pos;
 	SDL_Rect game_rules;
-	SDL_Surface* rules = nullptr;
-	SDL_Surface* display;
-	Playground* playground;
-	Menu* menu;
-	SDL_Event event;
-	SDL_Surface* start_menu = nullptr;
-	SDL_Surface* menu_all = nullptr;
-	SDL_Surface* menu_team = nullptr;
-	SDL_Surface* message = NULL;
-	TTF_Font* font = NULL;
-	SDL_Color textColor = { 255, 255, 255 };
+	int in_game;
+	SDL_Rect colour_box;
+	bool game_paused = false;
 
-
-public:
-	Game();
-
-private:
 	void initialize();
 
 	void listen_to_keys();
 
-	void draw_rectangle(SDL_Surface*, SDL_Rect*, int, int, int);
+	void key_pressed(SDL_Event* event);
+
+	void key_unpressed(SDL_Event* event);
+
+	void fps_changed(int);
+
+	void menu_loop(int&, int&, int&, int&, int&);
+
+	void game_loop(int&, int&, int&, int&, int&);
+
+	void draw_menu();
 
 	void draw_blank(int, int, int, int);
 
 	void draw_boundaries();
 
+	void fill_circle(SDL_Surface*, double, double, double, Uint32);
+
 	void draw_playground();
-
-	void draw_winner();
-
-	void draw_menu();
 
 	void draw_scoreboard();
 
 	void game_finished();
 
-	void key_pressed( SDL_Event* event );
-
-	void key_unpressed( SDL_Event* event );
-
 	void quit();
 
-	void fpsChanged(int);
-
 public:
+	Game();
+
 	void run();
 
-	int get_window_height();
 };
 
 #endif /* GAME_H */
