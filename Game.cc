@@ -7,17 +7,16 @@
 #include <sstream>
 #include "SDL_keyboard.h"
 
-
 using namespace std;
 
 Game::Game()
 {
 	frameSkip = 0;
-	in_game = 0;
 	display = NULL;
-	for (int i=0; i<SDLK_LAST; ++i)
+	// Nollställer listan med nedtryckta tangenter
+	for(int i = 0; i < SDLK_LAST; ++i)
 	{
-		this->keys[ i ] = 0 ;
+		this->keys[i] = 0;
 	}
 	initialize();
 }
@@ -25,61 +24,75 @@ Game::Game()
 void Game::initialize()
 {
 	int flags = SDL_HWSURFACE|SDL_DOUBLEBUF|SDL_ANYFORMAT;
-	/* Initiera SDL */
-	if (SDL_Init(SDL_INIT_VIDEO|SDL_INIT_TIMER|SDL_INIT_EVERYTHING))
-	{
-		return ;
-	}
-	// Initiera SDL_ttf
-	if( TTF_Init() == -1 )
+	// Initiera SDL
+	if(SDL_Init(SDL_INIT_VIDEO|SDL_INIT_TIMER|SDL_INIT_EVERYTHING))
 	{
 		return;
 	}
-	/* Sätter video i fullskärm */
-	this->display = SDL_SetVideoMode(0, 0, 0, flags | SDL_FULLSCREEN);
-	if ( display == NULL )
+	// Initiera SDL_ttf
+	if(TTF_Init() == -1)
 	{
-		return ;
+		return;
+	}
+	// Sätter video i fullskärm
+	this->display = SDL_SetVideoMode(0, 0, 0, flags | SDL_FULLSCREEN);
+	if(display == NULL)
+	{
+		return;
 	}
 	window_height = this->display->h;
-	/* Sätter fönstertext */
+	// Sätter fönstertext
 	SDL_WM_SetCaption( "Achtung, die Kurve!", NULL );
-
-	this->in_game = 1 ;
 
 	playground = new Playground(window_height);
 	menu = new Menu(window_height);
 
 	// Ladda upp bilderna samt typsnittet som kommer att användas
-	start_menu = SDL_LoadBMP( "Meny.bmp" );
-	menu_all = SDL_LoadBMP( "meny_alla_mot_alla.bmp" );
-	menu_team = SDL_LoadBMP( "meny_lag.bmp" );
-	rules = SDL_LoadBMP( "Instruction_pic2.bmp" );
-	font = TTF_OpenFont( "lazy.ttf", 28 );
+	start_menu = SDL_LoadBMP("Meny.bmp");
+	menu_all = SDL_LoadBMP("meny_alla_mot_alla.bmp");
+	menu_team = SDL_LoadBMP("meny_lag.bmp");
+	rules = SDL_LoadBMP("Instruction_pic2.bmp");
+	font = TTF_OpenFont("lazy.ttf", 28);
 }
 
+/*
+ * Tar in tangenttryckningar
+ */
 void Game::listen_to_keys()
 {
-	if (SDL_PollEvent(&event))
+	if(SDL_PollEvent(&event))
 	{
 		switch (event.type)
 		{
-		case SDL_QUIT:    quit();            break;
-		case SDL_KEYDOWN: key_pressed( &event ); break;
-		case SDL_KEYUP:   key_unpressed( &event );   break;
+		case SDL_QUIT:
+			quit();
+			break;
+		case SDL_KEYDOWN:
+			key_pressed(&event);
+			break;
+		case SDL_KEYUP:
+			key_unpressed(&event);
+			break;
 		}
 	}
 }
 
+/*
+ * Sätter 1:a på tangenter som är nedtryckta
+ */
 void Game::key_pressed(SDL_Event* event)
 {
 	keys[event->key.keysym.sym] = 1;
 }
 
+/*
+ * Sätter 0:a på tangenter som inte är nedtryckta
+ */
 void Game::key_unpressed(SDL_Event* event)
 {
 	keys[event->key.keysym.sym] = 0;
 }
+
 
 void Game::fps_changed(int fps)
 {
@@ -88,6 +101,9 @@ void Game::fps_changed(int fps)
 	SDL_WM_SetCaption(szFps, NULL);
 }
 
+/*
+ * Ritar ut menyn och spelreglerna. Vid knapptryckningar
+ */
 void Game::draw_menu() {
 	// Ritar ut en svart fyrkant 400 x 400 där menyn är (rensar)
 	draw_blank(window_height, 0, 400, 400);
@@ -270,7 +286,7 @@ void Game::game_finished()
 	winner_text.y = window_height/2 - 60;
 	std::stringstream strm;
 	strm << "Vinnaren är :";
-	text = TTF_RenderText_Solid( font, strm.str().c_str(), textColor );
+	text = TTF_RenderText_Solid(font, strm.str().c_str(), textColor);
 	SDL_BlitSurface(text, NULL, display, &winner_text);
 	SDL_Flip(display);
 

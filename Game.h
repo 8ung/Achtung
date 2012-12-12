@@ -22,13 +22,13 @@ private:
 	TTF_Font* font = NULL;
 	SDL_Color textColor = { 255, 255, 255 };
 	int window_height;
+	int frameSkip;
 	bool team_play = false;
 	Uint32 input_colour;
 	int input_left_controler;
 	int input_right_controler;
 	SDL_Event event;
 	int keys[SDLK_LAST];
-	int frameSkip;
 	bool in_menu;
 	bool in_start_menu = true;
 	std::vector<Position_class*> check_box;
