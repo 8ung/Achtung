@@ -6,7 +6,7 @@ using namespace std;
 
 SlowerYou::SlowerYou(Position_class new_position, Uint32 color)
 :Powerup(new_position, color,
-		"C:/Users/Oscar/Workspace/Projektet/src/Bilder/slower_you_power.bmp"),
+		"slower_you_power.bmp"),
 		affect_map(false)
 {}
 

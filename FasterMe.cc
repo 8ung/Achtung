@@ -6,7 +6,7 @@
 using namespace std;
 
 FasterMe::FasterMe(Position_class new_position, Uint32 color)
-:Powerup(new_position, color, "C:/Users/Oscar/Workspace/Projektet/src/Bilder/faster_me_power.bmp"),
+:Powerup(new_position, color, "faster_me_power.bmp"),
  affect_map(false)
 {}
 

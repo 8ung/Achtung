@@ -124,6 +124,7 @@ void Worm::reset_worm()
 	powerup_ghost = false;
 	powerup_sharp_turn = false;
 	powerup_mirror = false;
+	distance_to_hole = 0;
 }
 
 void Worm::set_powerup_timer()

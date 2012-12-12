@@ -8,6 +8,8 @@
 #include "SlowerMe.h"
 #include "SlowerYou.h"
 #include "ThroughWallMe.h"
+#include "ThinnerMe.h"
+#include "ThickerYou.h"
 
 Playground::Playground(int window_height) {
 	upper_left_corner = new Position_class(0, 0);
@@ -100,7 +102,7 @@ void Playground::random_powerup_values()
 		}
 		Position_class powerup_position;
 		powerup_position.random_position(bottom_right_corner->x_koord);
-		int random_powerup = rand() % 5;
+		int random_powerup = rand() % 7;
 		switch (random_powerup)
 		{
 		case 0:
@@ -118,6 +120,13 @@ void Playground::random_powerup_values()
 		case 4:
 			powerup_to_draw = new ThroughWallMe(powerup_position, powerup_colour);
 			break;
+		case 5:
+			powerup_to_draw = new ThinnerMe(powerup_position, powerup_colour);
+			break;
+		case 6:
+			powerup_to_draw = new ThickerYou(powerup_position, powerup_colour);
+			break;
+
 		}
 		powerup_vector.push_back(powerup_to_draw);
 	}
@@ -256,17 +265,12 @@ void Playground::collision(SDL_Surface* display, bool team_play)
 					{
 						powerup_vector[powerup_vector_index]->execute(worm_index, survivor_vector);
 						powerup_to_erase = powerup_vector[powerup_vector_index];
-						//powerup_vector[powerup_vector_index] = nullptr;
-						//std::vector<Powerup*>::iterator it;
-						//it = remove(powerup_vector.begin(),powerup_vector.end(),nullptr);
-						//delete powerup_vector[powerup_vector_index];
-						//powerup_vector.erase(powerup_vector.begin() + powerup_vector_index);
 						powerup_bool = false;
 						powerup_vector_index = powerup_vector_size;
 					}
 					powerup_vector_index++;
 				}
-				if(survivor_vector[worm_index]->powerup_through_wall &&
+				if((survivor_vector[worm_index]->powerup_through_wall == true) &&
 						((left_pixel_colour == 16777215) || (right_pixel_colour == 16777215)))
 				{
 					if(center_x < offset)
@@ -314,7 +318,7 @@ void Playground::collision(SDL_Surface* display, bool team_play)
 				survivor_vector[worm_index]->get_position()->x_koord > bottom_right_corner->x_koord - 10 ||
 				survivor_vector[worm_index]->get_position()->y_koord > bottom_right_corner->y_koord - 10)
 		{
-			if(//survivor_vector[worm_index]->powerup_through_wall &&
+			if((survivor_vector[worm_index]->powerup_through_wall == true) &&
 					((left_pixel_colour == 16777215) || (right_pixel_colour == 16777215)))
 			{
 				if(center_x < offset)

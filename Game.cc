@@ -55,19 +55,11 @@ void Game::initialize()
 
 	playground = new Playground(window_height);
 	menu = new Menu(window_height);
-	/*Uint32 worm_colour = SDL_MapRGB(display->format, 255, 0, 0);
-	Uint32 worm_colour2 = SDL_MapRGB(display->format, 0, 255, 0);
-	Uint32 worm_colour3 = SDL_MapRGB(display->format, 0, 0, 255);*/
-	//Uint32 worm_colour = 0x00000001;
-	/*playground->initialize(worm_colour, 276,275);
-	playground->initialize(worm_colour2, 49,50);
-	playground->initialize(worm_colour3, 110,109);*/
-	//playground->initialize(worm_colour, 276,275);
 
-	start_menu = SDL_LoadBMP( "C:/Users/Oscar/Workspace/Projektet/src/Bilder/Meny.bmp" );
-	menu_all = SDL_LoadBMP( "C:/Users/Oscar/Workspace/Projektet/src/Bilder/meny_alla_mot_alla.bmp" );
-	menu_team = SDL_LoadBMP( "C:/Users/Oscar/Workspace/Projektet/src/Bilder/meny_lag.bmp" );
-	font = TTF_OpenFont( "C:/Users/Oscar/Workspace/Projektet/src/lazy.ttf", 28 );
+	start_menu = SDL_LoadBMP( "Meny.bmp" );
+	menu_all = SDL_LoadBMP( "meny_alla_mot_alla.bmp" );
+	menu_team = SDL_LoadBMP( "meny_lag.bmp" );
+	font = TTF_OpenFont( "lazy.ttf", 28 );
 }
 
 void Game::listen_to_keys()
@@ -514,7 +506,7 @@ void Game::run() {
 			posy.x = 50;
 			posy.y = 100;
 			std::stringstream strm2;
-			strm2 << SDL_MapRGB(display->format, 255, 255, 255);
+			strm2 << playground->test_variable;
 			message = TTF_RenderText_Solid( font, strm2.str().c_str(), textColor );
 			SDL_BlitSurface(message, NULL, display, &posy);
 			SDL_Flip(display);*/
