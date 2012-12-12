@@ -8,6 +8,10 @@ ThickerYou::ThickerYou(Position_class new_position, Uint32 color)
 :Powerup(new_position, color, "thicker_you_power.bmp"), affect_map(false)
 {}
 
+/*execute anropas då en mask kör in i en thicker_you-powerup. Den går igenom survivor_vector (de maskar som
+fortfarande lever) och ändrar double-variabeln "thickness" till 2 gånger det ursprungliga värdet.
+Detta utförs i alla maskar med undantag för den som tog powerupen dvs den mask som har "index" som placering
+i "survivor_vector".*/
 void ThickerYou::execute(int index, vector<Worm*>& Worm_vector)
 {
 	int vector_size = Worm_vector.size();

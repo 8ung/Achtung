@@ -10,6 +10,9 @@ FasterMe::FasterMe(Position_class new_position, Uint32 color)
  affect_map(false)
 {}
 
+/*execute anropas då en mask kör in i en faster_me-powerup. Den går igenom survivor_vector (de maskar som
+fortfarande lever) och ändrar double-variabeln "speed" till 2 gånger det ursprungliga värdet.
+Detta utförs i den mask som tog powerupen dvs den mask som har "index" som placering i "survivor_vector".*/
 void FasterMe::execute(int index, vector<Worm*>& survivor_vector)
 {
 	survivor_vector[index]->reset_worm();

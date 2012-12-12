@@ -10,6 +10,9 @@ SlowerMe::SlowerMe(Position_class new_position, Uint32 color)
 		affect_map(false)
 {}
 
+/*execute anropas då en mask kör in i en slower_me-powerup. Den går igenom survivor_vector (de maskar som
+fortfarande lever) och ändrar double-variabeln "speed" till 0.5 av det ursprungliga värdet.
+Detta utförs i den mask som tog powerupen dvs den mask som har "index" som placering i "survivor_vector".*/
 void SlowerMe::execute(int index, vector<Worm*>& Worm_vector)
 {
 	Worm_vector[index]->reset_worm();

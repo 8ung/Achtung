@@ -4,26 +4,26 @@
 #include "Position_class.h"
 #include <string>
 
+
 Menu::Menu(int window_height)
 {
 	team_play = false;
 	start_menu = true;
 	position = 1;
-	if(start_menu == true)
-	{
-		first_position = Position_class(window_height + 28, 112);
-		marker_position = first_position;
-		spacing = 56;
-		//background_image = SDL_LoadBMP( "Meny.bmp".c_str() );//Här ska någon gamefunktion verka
-	}
+	first_position = Position_class(window_height + 28, 112);
+	marker_position = first_position;
+	spacing = 56;
 }
 
+//execute_start_menu returnerar den abstrakta position som "marker" befinner som på. Denna anropas i filen Game.
 int Menu::execute_start_menu()
 {
 	start_menu = false;
 	return position;
 }
 
+/*reset_menu anropas från game då ett spel är slut och man återkommer till startmenyn. Den återställer menu-parametrar
+till de ursprungliga värdena.*/
 void Menu::reset_menu()
 {
 	start_menu = true;
@@ -32,6 +32,7 @@ void Menu::reset_menu()
 	marker_position = first_position;
 }
 
+//execute_select_worm_menu returnerar den färg som "marker" markerar i det grafiska.//
 Uint32 Menu::execute_select_worm_menu()
 {
 	switch(position)
@@ -58,6 +59,9 @@ Uint32 Menu::execute_select_worm_menu()
 	return 0;
 }
 
+/*move_up anropas från Game då användaren trycker på uppknappen. Funktionen flyttar upp "marker" med "spacing" pixlar
+ *  och flyttar upp den abstrakta positionen med ett steg.
+ */
 void Menu::move_up()
 {
 	if(start_menu)
@@ -88,6 +92,9 @@ void Menu::move_up()
 	}
 }
 
+/*move_down anropas från Game då användaren trycker på nerknappen. Funktionen flyttar ner "marker" med "spacing" pixlar
+ *  och flyttar ner den abstrakta positionen med ett steg.
+*/
 void Menu::move_down()
 {
 	if(start_menu)

@@ -10,6 +10,10 @@ SlowerYou::SlowerYou(Position_class new_position, Uint32 color)
 		affect_map(false)
 {}
 
+/*execute anropas då en mask kör in i en slower_you-powerup. Den går igenom survivor_vector (de maskar som
+fortfarande lever) och ändrar double-variabeln "speed" till 0.5 av det ursprungliga värdet.
+Detta utförs i alla maskar med undantag för den som tog powerupen dvs den mask som har "index" som placering
+i "survivor_vector".*/
 void SlowerYou::execute(int index, vector<Worm*>& Worm_vector)
 {
 	int vector_size = Worm_vector.size();
