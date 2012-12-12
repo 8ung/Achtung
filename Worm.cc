@@ -2,8 +2,8 @@
 #include <math.h>
 #include <time.h>
 
-Worm::Worm(Uint32 new_colour, int new_left_control,
-		int new_right_control, int window_height)
+Worm::Worm(const Uint32 new_colour, const int new_left_control,
+		const int new_right_control,const int window_height)
 {
 	distance_to_hole = random_distance_to_hole();
 	colour = new_colour;
@@ -33,17 +33,17 @@ Worm::~Worm()
 	delete[] position;
 }
 
-Uint32 Worm::get_colour()
+const Uint32 Worm::get_colour()
 {
 	return colour;
 }
 
-int Worm::get_left_control()
+const int Worm::get_left_control()
 {
 	return left_control;
 }
 
-int Worm::get_right_control()
+const int Worm::get_right_control()
 {
 	return right_control;
 }
@@ -51,7 +51,7 @@ int Worm::get_right_control()
 /*change_direction anropas då en mask ska svänga. Om det är så att värdet för "direction" går över 360 så ändras
  * värdet till 0. Om det är så att "direction" går under noll så ändras den istället till 360.
  */
-void Worm::change_direction(double degrees)
+void Worm::change_direction(const double degrees)
 {
 	direction = direction - degrees;
 	if(direction >= 360)
@@ -64,12 +64,12 @@ void Worm::change_direction(double degrees)
 	}
 }
 
-int Worm::get_direction()
+const int Worm::get_direction()
 {
 	return direction;
 }
 
-void Worm::set_position(double x, double y)
+void Worm::set_position(const double x, const double y)
 {
 	position->x_koord = x;
 	position->y_koord = y;
@@ -92,7 +92,7 @@ void Worm::move()
 	}
 }
 
-void Worm::random_position(int window_height)
+void Worm::random_position(const int window_height)
 {
 	position->random_position(window_height);
 }
@@ -107,12 +107,12 @@ void Worm::add_score()
 	score++;
 }
 
-int Worm::get_score()
+const int Worm::get_score()
 {
 	return score;
 }
 
-int Worm::get_distance_to_hole()
+const int Worm::get_distance_to_hole()
 {
 	return distance_to_hole;
 }

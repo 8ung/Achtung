@@ -4,7 +4,8 @@
 
 using namespace std;
 
-Powerup::Powerup(Position_class new_position, Uint32 color, const char* image_path)
+Powerup::Powerup(const Position_class new_position,
+		const Uint32 color, const char* image_path)
 {
 	position = new_position;
 	//Detta är den färg som finns på den cirkel som ligger bakom powerup-bilden.

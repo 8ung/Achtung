@@ -10,8 +10,8 @@ class ThroughWallMe : public Powerup
 {
 public:
 	bool affect_map;
-	ThroughWallMe(Position_class, Uint32);
-	void execute(int, std::vector<Worm*>&);
+	ThroughWallMe(const Position_class, const Uint32);
+	void execute(const int, std::vector<Worm*>&);
 };
 
 #endif

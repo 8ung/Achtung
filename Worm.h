@@ -29,33 +29,34 @@ public:
 	bool powerup_through_wall = false;
 	bool powerup_mirror = false;
 
-	Worm(Uint32 colour, int left_control, int right_control, int window_height);
+	Worm(const Uint32 colour, const int left_control,
+			const int right_control, const int window_height);
 
 	~Worm();
 
-	Uint32 get_colour();
+	const Uint32 get_colour();
 
-	int get_left_control();
+	const int get_left_control();
 
-	int get_right_control();
+	const int get_right_control();
 
-	void change_direction(double);
+	void change_direction(const double);
 
-	int get_direction();
+	const int get_direction();
 
-	void set_position(double, double);
+	void set_position(const double, const double);
 
 	void move();
 
-	void random_position(int);
+	void random_position(const int);
 
 	void kill_worm();
 
 	void add_score();
 
-	int get_score();
+	const int get_score();
 
-	int get_distance_to_hole();
+	const int get_distance_to_hole();
 
 	void set_powerup_timer();
 

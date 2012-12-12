@@ -10,7 +10,6 @@ class Menu
 private:
 	bool team_play;
 	int spacing;
-	//SDL_Surface* background_image = 0;
 	enum
 	{
 		red = 16711680,
@@ -24,20 +23,19 @@ private:
 public:
 
 	Position_class first_position;
-	int position;
 	Position_class marker_position;
-
+	int position;
 	bool start_menu;
 
-	Menu(int);
-
-	int execute_start_menu();
-
-	Uint32 execute_select_worm_menu();
+	Menu(const int);
 
 	void move_up();
 
 	void move_down();
+
+	const int execute_start_menu();
+
+	const Uint32 execute_select_worm_menu();
 
 	void reset_menu();
 };

@@ -14,10 +14,10 @@ class FasterMe : public Powerup
 public:
 	std::string image_path;
 	bool affect_map = false;
-	FasterMe(Position_class, Uint32);
+	FasterMe(const Position_class, const Uint32);
 	//SDL_Surface* image;
 
-	void execute(int, std::vector<Worm*>&);
+	void execute(const int, std::vector<Worm*>&);
 
 	~FasterMe() = default;
 };

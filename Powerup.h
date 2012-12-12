@@ -11,14 +11,14 @@ class Powerup
 
 public:
 	Position_class position;
-	Powerup(Position_class, Uint32, const char*);
+	Powerup(const Position_class, const Uint32, const char*);
 	virtual ~Powerup() = default;
 
 	Uint32 colour_id;
 	int radius;
 	SDL_Surface* image;
 
-	virtual void execute(int, std::vector<Worm*>&) = 0;
+	virtual void execute(const int, std::vector<Worm*>&) = 0;
 };
 
 #endif

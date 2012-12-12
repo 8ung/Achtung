@@ -10,7 +10,7 @@
 #include "ThickerYou.h"
 #include "MirrorYou.h"
 
-Playground::Playground(int window_height)
+Playground::Playground(const int window_height)
 {
 	upper_left_corner = new Position_class(0, 0);
 	bottom_right_corner = new Position_class(window_height,window_height);
@@ -20,7 +20,7 @@ Playground::Playground(int window_height)
 	powerup_to_erase = NULL;
 }
 
-Uint32 Playground::get_pixel(SDL_Surface* display, double x, double y)
+Uint32 Playground::get_pixel(const SDL_Surface* display, const double x, const double y)
 {
 	int bpp = display->format->BytesPerPixel;
 	// p är adressen till pixeln man vill komma åt
@@ -46,6 +46,8 @@ Uint32 Playground::get_pixel(SDL_Surface* display, double x, double y)
 	case 4:
 		return *(Uint32*)p;
 		break;
+	default:
+		return 0;	// För att slippa varningar
 	}
 }
 
@@ -129,7 +131,7 @@ void Playground::random_powerup_values()
 /*sort_vectors används för att sortera worm_vector efter poäng. Den mask med mest poäng står först i vektorn.
  *
  */
-void Playground::sort_vectors(bool team_play)
+void Playground::sort_vectors(const bool team_play)
 {
 	int worm_vector_size = worm_vector.size();
 	std::vector<Worm*> temp_worm_vector;
@@ -155,16 +157,20 @@ void Playground::sort_vectors(bool team_play)
 }
 /*
  * Kollision med en powerup hanteras annorlunda än en annan kollision.
- * Denna funktion kontrollerar om kollisionen som inträffat varit en kollision med en powerup eller inte.
+ * Denna funktion kontrollerar om kollisionen som inträffat varit en
+ * kollision med en powerup eller inte.
  */
 
-bool Playground::collision_with_powerup(int worm_index,
-		Uint32 left_pixel_colour, Uint32 right_pixel_colour)
+const bool Playground::collision_with_powerup(const int worm_index,
+		const Uint32 left_pixel_colour, const Uint32 right_pixel_colour)
 {
 	bool no_powerup_collision = true;
 	int powerup_vector_index = 0;
 	int powerup_vector_size = powerup_vector.size();
-	//Den färg som registrerats vid kollisionen jämförs med alla powerups respektive unika färg.
+	/*
+	 * Den färg som registrerats vid kollisionen jämförs med alla
+	 * powerups respektive unika färg.
+	 */
 	while(powerup_vector_index < powerup_vector_size)
 	{
 		if(right_pixel_colour == powerup_vector[powerup_vector_index]->colour_id ||
@@ -184,9 +190,9 @@ bool Playground::collision_with_powerup(int worm_index,
  * Maskens position ändras då till motstående vägg där den kan fortsätta spela. En offsetvariabel används för att ta
  * hänsyn till maskens respektive väggens tjocklek.
  */
-void Playground::through_wall(int worm_index, double center_x, double center_y)
+void Playground::through_wall(const int worm_index, const double center_x, const double center_y)
 {
-	int offset = 17;	// Avstånd från kant då through wall används
+	const int offset = 17;	// Avstånd från kant då through wall används
 	if(center_x < offset) // Den vänstra väggen
 	{
 		survivor_vector[worm_index]->set_position(bottom_right_corner->x_koord -offset,
@@ -245,9 +251,9 @@ void Playground::team_collision()
 /*
  * Anropas i samband med att menyn körs. Här skapas maskobjekten och stoppas in i worm_vector och survivor_vector
  */
-void Playground::initialize(Uint32 colour,
-		unsigned int left_control,
-		unsigned int right_control)
+void Playground::initialize(const Uint32 colour,
+		const unsigned int left_control,
+		const unsigned int right_control)
 {
 	Worm* temp_worm = new Worm(colour, left_control,
 			right_control, bottom_right_corner->x_koord);
@@ -257,7 +263,7 @@ void Playground::initialize(Uint32 colour,
 /*
  * Update flyttar maskarna, en i taget.
  */
-void Playground::update(int worm_index, bool left_bool, bool right_bool)
+void Playground::update(const int worm_index, const bool left_bool, const bool right_bool)
 {
 	random_powerup_values();
 	int mirror_degrees = 1;
@@ -285,7 +291,7 @@ void Playground::update(int worm_index, bool left_bool, bool right_bool)
  * vilket skulle innebära ett den kört in i en vägg, en mask eller en powerup. Collision hanterar sedan
  * dessa fall för en mask i taget - om masken ska dö eller om en powerup ska börja verka.
  */
-void Playground::collision(SDL_Surface* display, bool team_play)
+void Playground::collision(const SDL_Surface* display, const bool team_play)
 {
 	int survivor_vector_size = survivor_vector.size();
 	int worm_index = 0;
@@ -332,7 +338,7 @@ void Playground::collision(SDL_Surface* display, bool team_play)
 						{
 							survivor_vector[index]->add_score();
 						}
-						int size = survivor_vector.size();
+						const int size = survivor_vector.size();
 						if(size <= 1)
 						{
 							round_finished = true;
@@ -348,9 +354,7 @@ void Playground::collision(SDL_Surface* display, bool team_play)
 				(survivor_vector[worm_index]->position->y_koord > bottom_right_corner->y_koord - 10))
 		{
 			// 16777215 är färgen vit (kanten)
-			if((survivor_vector[worm_index]->powerup_through_wall == true) &&
-					((left_pixel_colour == 16777215) ||
-							(right_pixel_colour == 16777215)))
+			if(survivor_vector[worm_index]->powerup_through_wall == true)
 			{
 				through_wall(worm_index, center_x, center_y);
 			}
@@ -367,6 +371,11 @@ void Playground::collision(SDL_Surface* display, bool team_play)
 					for(int index = 0; index < survivor_vector_size-1; index++)
 					{
 						survivor_vector[index]->add_score();
+					}
+					const int size = survivor_vector.size();
+					if(size <= 1)
+					{
+						round_finished = true;
 					}
 				}
 			}
@@ -401,7 +410,7 @@ void Playground::start_new_round()
  * Då en spelare/lag uppnått maxpoängen med två poängs marginal visas vem som vunnit och man förs sedan åter till menyn.
  * Alla objekt destrueras.
  */
-bool Playground::game_finished(bool team_play)
+const bool Playground::game_finished(const bool team_play)
 {
 	if(team_play)
 	{

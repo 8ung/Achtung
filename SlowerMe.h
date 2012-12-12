@@ -11,9 +11,9 @@ class SlowerMe : public Powerup
 
 public:
 	bool affect_map = false;
-	SlowerMe(Position_class, Uint32);
+	SlowerMe(const Position_class, const Uint32);
 
-	void execute(int, std::vector<Worm*>&);
+	void execute(const int, std::vector<Worm*>&);
 };
 
 #endif

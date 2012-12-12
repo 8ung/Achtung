@@ -10,8 +10,8 @@ class ThinnerMe : public Powerup
 {
 public:
 	bool affect_map;
-	ThinnerMe(Position_class, Uint32);
-	void execute(int, std::vector<Worm*>&);
+	ThinnerMe(const Position_class, const Uint32);
+	void execute(const int, std::vector<Worm*>&);
 };
 
 #endif
